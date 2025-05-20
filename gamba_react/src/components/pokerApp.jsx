@@ -206,40 +206,40 @@ export default function PokerApp() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Poker Decision Assistant</h1>
+    <div className="poker-app">
+      <h1 className="mb-4">Poker Decision Assistant</h1>
       
       {/* Players Section */}
-      <div className="mb-6 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2">Players</h2>
-        <div className="grid gap-4 mb-4">
+      <div className="card mb-6">
+        <h2 className="mb-2">Players</h2>
+        <div className="mb-4">
           {players.map((player, index) => (
-            <div key={index} className="flex flex-wrap gap-2 items-center p-2 border rounded">
+            <div key={index} className="player-card flex flex-wrap gap-2 items-center p-2">
               <input
                 type="text"
                 value={player.name}
                 onChange={(e) => updatePlayer(index, 'name', e.target.value)}
-                className="border p-1 w-32"
+                className="p-1"
                 placeholder="Name"
               />
               <input
                 type="number"
                 value={player.stack}
                 onChange={(e) => updatePlayer(index, 'stack', parseInt(e.target.value))}
-                className="border p-1 w-24"
+                className="p-1"
                 placeholder="Stack"
               />
               <select
                 value={player.state}
                 onChange={(e) => updatePlayer(index, 'state', e.target.value)}
-                className="border p-1"
+                className="p-1"
               >
                 <option value="participating">Active</option>
                 <option value="folded">Folded</option>
                 <option value="allin">All-in</option>
               </select>
               {index === 0 && (
-                <span className="ml-auto px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+                <span className="ml-auto p-1">
                   MyBot
                 </span>
               )}
@@ -248,18 +248,18 @@ export default function PokerApp() {
         </div>
         <button 
           onClick={addPlayer}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="btn btn-primary"
         >
           Add Player
         </button>
       </div>
       
       {/* Game Info Section */}
-      <div className="mb-6 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2">Game Info</h2>
-        <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="card mb-6">
+        <h2 className="mb-2">Game Info</h2>
+        <div className="flex flex-wrap gap-4 mb-4">
           <div>
-            <label className="block mb-1">Street:</label>
+            <label className="mb-1">Street:</label>
             <select
               value={gameState.street}
               onChange={(e) => updateGameState('street', e.target.value)}
@@ -273,7 +273,7 @@ export default function PokerApp() {
           </div>
           
           <div>
-            <label className="block mb-1">Round Count:</label>
+            <label className="mb-1">Round Count:</label>
             <input
               type="number"
               value={gameState.roundCount}
@@ -283,7 +283,7 @@ export default function PokerApp() {
           </div>
           
           <div>
-            <label className="block mb-1">Main Pot:</label>
+            <label className="mb-1">Main Pot:</label>
             <input
               type="number"
               value={gameState.pot.main}
@@ -293,7 +293,7 @@ export default function PokerApp() {
           </div>
           
           <div>
-            <label className="block mb-1">Side Pot:</label>
+            <label className="mb-1">Side Pot:</label>
             <input
               type="number"
               value={gameState.pot.side}
@@ -303,7 +303,7 @@ export default function PokerApp() {
           </div>
           
           <div>
-            <label className="block mb-1">Small Blind Amount:</label>
+            <label className="mb-1">Small Blind Amount:</label>
             <input
               type="number"
               value={gameState.smallBlindAmount}
@@ -313,7 +313,7 @@ export default function PokerApp() {
           </div>
           
           <div>
-            <label className="block mb-1">Dealer Position:</label>
+            <label className="mb-1">Dealer Position:</label>
             <select
               value={gameState.dealerPosition}
               onChange={(e) => updateGameState('dealerPosition', parseInt(e.target.value))}
@@ -328,7 +328,7 @@ export default function PokerApp() {
           </div>
           
           <div>
-            <label className="block mb-1">Small Blind Position:</label>
+            <label className="mb-1">Small Blind Position:</label>
             <select
               value={gameState.smallBlindPos}
               onChange={(e) => updateGameState('smallBlindPos', parseInt(e.target.value))}
@@ -343,7 +343,7 @@ export default function PokerApp() {
           </div>
           
           <div>
-            <label className="block mb-1">Big Blind Position:</label>
+            <label className="mb-1">Big Blind Position:</label>
             <select
               value={gameState.bigBlindPos}
               onChange={(e) => updateGameState('bigBlindPos', parseInt(e.target.value))}
@@ -358,7 +358,7 @@ export default function PokerApp() {
           </div>
           
           <div>
-            <label className="block mb-1">Next Player:</label>
+            <label className="mb-1">Next Player:</label>
             <select
               value={gameState.nextPlayer}
               onChange={(e) => updateGameState('nextPlayer', parseInt(e.target.value))}
@@ -375,19 +375,19 @@ export default function PokerApp() {
       </div>
       
       {/* Cards Section */}
-      <div className="mb-6 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2">Cards</h2>
+      <div className="card mb-6">
+        <h2 className="mb-2">Cards</h2>
         
         {/* Hole Cards */}
         <div className="mb-4">
-          <h3 className="font-medium mb-1">Your Hole Cards:</h3>
-          <div className="flex gap-2">
+          <h3 className="mb-1">Your Hole Cards:</h3>
+          <div className="card-selection">
             {[0, 1].map((index) => (
-              <div key={index} className="flex border rounded">
+              <div key={index} className="flex">
                 <select
                   value={gameState.holeCards[index].charAt(0) || ''}
                   onChange={(e) => updateHoleCard(index, e.target.value + (gameState.holeCards[index].charAt(1) || ''))}
-                  className="border-r p-2"
+                  className="p-2"
                 >
                   <option value="">Value</option>
                   {values.map(val => (
@@ -411,14 +411,14 @@ export default function PokerApp() {
         
         {/* Community Cards */}
         <div>
-          <h3 className="font-medium mb-1">Community Cards:</h3>
-          <div className="flex flex-wrap gap-2">
+          <h3 className="mb-1">Community Cards:</h3>
+          <div className="card-selection flex-wrap">
             {[0, 1, 2, 3, 4].map((index) => (
-              <div key={index} className="flex border rounded">
+              <div key={index} className="flex">
                 <select
                   value={gameState.communityCards[index].charAt(0) || ''}
                   onChange={(e) => updateCommunityCard(index, e.target.value + (gameState.communityCards[index].charAt(1) || ''))}
-                  className="border-r p-2"
+                  className="p-2"
                 >
                   <option value="">Value</option>
                   {values.map(val => (
@@ -442,19 +442,19 @@ export default function PokerApp() {
       </div>
       
       {/* Valid Actions Section */}
-      <div className="mb-6 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2">Valid Actions</h2>
-        <div className="grid gap-4">
-          <div className="p-2 border rounded">
+      <div className="card mb-6">
+        <h2 className="mb-2">Valid Actions</h2>
+        <div className="flex flex-col gap-2">
+          <div className="player-card">
             <div className="flex items-center">
-              <span className="font-medium w-16">Fold</span>
+              <span className="w-16">Fold</span>
               <span>(Amount: 0)</span>
             </div>
           </div>
           
-          <div className="p-2 border rounded">
+          <div className="player-card">
             <div className="flex items-center gap-2">
-              <span className="font-medium w-16">Call</span>
+              <span className="w-16">Call</span>
               <input
                 type="number"
                 value={validActions.find(a => a.action === 'call')?.amount || 0}
@@ -464,9 +464,9 @@ export default function PokerApp() {
             </div>
           </div>
           
-          <div className="p-2 border rounded">
+          <div className="player-card">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-medium w-16">Raise</span>
+              <span className="w-16">Raise</span>
               <div className="flex items-center gap-1">
                 <span>Min:</span>
                 <input
@@ -491,14 +491,14 @@ export default function PokerApp() {
       </div>
 
       {/* Action History Section */}
-      <div className="mb-6 bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-2">Action History ({gameState.street})</h2>
+      <div className="card mb-6">
+        <h2 className="mb-2">Action History ({gameState.street})</h2>
         {renderActionHistory()}
         
-        <div className="mt-4 border-t pt-4">
-          <h3 className="font-medium mb-2">Add Action</h3>
+        <div className="action-history">
+          <h3 className="mb-2">Add Action</h3>
           <div className="flex flex-wrap gap-2">
-            <select id="actionPlayer" className="border p-2">
+            <select id="actionPlayer" className="p-2">
               {players.map((player, idx) => (
                 <option key={idx} value={idx}>
                   {player.name}
@@ -506,7 +506,7 @@ export default function PokerApp() {
               ))}
             </select>
             
-            <select id="actionType" className="border p-2">
+            <select id="actionType" className="p-2">
               <option value="fold">Fold</option>
               <option value="call">Call</option>
               <option value="check">Check</option>
@@ -516,7 +516,7 @@ export default function PokerApp() {
             <input
               type="number"
               id="actionAmount"
-              className="border p-2 w-24"
+              className="p-2"
               placeholder="Amount"
             />
             
@@ -527,7 +527,7 @@ export default function PokerApp() {
                 const amount = parseInt(document.getElementById('actionAmount').value || 0);
                 addActionToHistory(playerIdx, action, amount);
               }}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              className="btn btn-secondary"
             >
               Add Action
             </button>
@@ -540,7 +540,7 @@ export default function PokerApp() {
         <button
           onClick={requestDecision}
           disabled={loading}
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400"
+          className="btn btn-primary"
         >
           {loading ? 'Loading...' : 'Get Bot Decision'}
         </button>
@@ -548,13 +548,13 @@ export default function PokerApp() {
       
       {/* Recommendation Display */}
       {recommendation && (
-        <div className="mb-6 bg-green-50 p-4 border border-green-200 rounded shadow">
-          <h2 className="text-xl font-semibold mb-2 text-green-800">Recommended Action</h2>
+        <div className="recommendation mb-6">
+          <h2 className="mb-2">Recommended Action</h2>
           {recommendation.error ? (
-            <p className="text-red-600">{recommendation.error}</p>
+            <p>{recommendation.error}</p>
           ) : (
             <div className="text-center">
-              <p className="text-3xl font-bold text-green-700 mb-2">
+              <p className="action mb-2">
                 {recommendation.action.toUpperCase()}
                 {recommendation.amount > 0 && ` ${recommendation.amount}`}
               </p>
