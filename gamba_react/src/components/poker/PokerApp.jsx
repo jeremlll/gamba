@@ -53,6 +53,78 @@ export default function PokerApp() {
       { name: `Player ${newPlayerId}`, uuid: newPlayerId, stack: 1000, state: 'participating' }
     ]);
   };
+  
+  // Function to remove a player
+  const removePlayer = (index) => {
+    if (players.length <= 2) return; // Maintain at least 2 players
+    
+    const updatedPlayers = [...players];
+    updatedPlayers.splice(index, 1);
+    
+    // Update game state positions if needed
+    const updatedGameState = { ...gameState };
+    
+    // Adjust positions if the removed player was in a special position
+    if (gameState.dealerPosition >= index) {
+      updatedGameState.dealerPosition = Math.max(0, gameState.dealerPosition - 1);
+    }
+    if (gameState.smallBlindPos >= index) {
+      updatedGameState.smallBlindPos = Math.max(0, gameState.smallBlindPos - 1);
+    }
+    if (gameState.bigBlindPos >= index) {
+      updatedGameState.bigBlindPos = Math.max(0, gameState.bigBlindPos - 1);
+    }
+    if (gameState.nextPlayer >= index) {
+      updatedGameState.nextPlayer = Math.max(0, gameState.nextPlayer - 1);
+    }
+    
+    setPlayers(updatedPlayers);
+    setGameState(updatedGameState);
+  };
+  
+  // Function to reorder players
+  const reorderPlayers = (fromIndex, toIndex, customOrder = null) => {
+    let updatedPlayers;
+    
+    if (customOrder) {
+      // Use custom order if provided
+      updatedPlayers = customOrder;
+    } else {
+      // Move player from fromIndex to toIndex
+      updatedPlayers = [...players];
+      const [movedPlayer] = updatedPlayers.splice(fromIndex, 1);
+      updatedPlayers.splice(toIndex, 0, movedPlayer);
+    }
+    
+    // Update player UUIDs to match their new positions
+    updatedPlayers = updatedPlayers.map((player, idx) => ({
+      ...player,
+      uuid: (idx + 1).toString()
+    }));
+    
+    // Update game state positions
+    const positionMap = {};
+    players.forEach((player, idx) => {
+      positionMap[player.uuid] = updatedPlayers.findIndex(p => p.name === player.name);
+    });
+    
+    const updatedGameState = { ...gameState };
+    
+    // Map old positions to new positions
+    const mapPosition = (oldPosition) => {
+      const oldUuid = players[oldPosition]?.uuid;
+      if (!oldUuid) return 0;
+      return positionMap[oldUuid] !== undefined ? positionMap[oldUuid] : 0;
+    };
+    
+    updatedGameState.dealerPosition = mapPosition(gameState.dealerPosition);
+    updatedGameState.smallBlindPos = mapPosition(gameState.smallBlindPos);
+    updatedGameState.bigBlindPos = mapPosition(gameState.bigBlindPos);
+    updatedGameState.nextPlayer = mapPosition(gameState.nextPlayer);
+    
+    setPlayers(updatedPlayers);
+    setGameState(updatedGameState);
+  };
 
   // Function to update player info
   const updatePlayer = (index, field, value) => {
@@ -140,14 +212,13 @@ export default function PokerApp() {
       const payload = preparePayload();
       console.log("Sending payload to backend:", payload);
       
-      // Uncomment this when your backend is ready
-      /* const response = await fetch("http://localhost:8000/ai_decision/", {
+      const response = await fetch("http://localhost:8000/ai_decision/", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
-      }); */
+      });
       
       // Mock response for testing
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -187,31 +258,50 @@ export default function PokerApp() {
       actionHistories: updatedHistories
     });
   };
-
-  // Function to render action histories for the current street
-  const renderActionHistory = () => {
-    const street = gameState.street;
-    const actions = gameState.actionHistories[street] || [];
+  
+  // Function to update an action in history
+  const updateActionHistory = (street, index, updatedAction) => {
+    let updatedActions;
     
-    if (actions.length === 0) {
-      return <p>No actions recorded for this street yet.</p>;
+    // If index is null, we're replacing the entire array
+    if (index === null) {
+      updatedActions = updatedAction; // This should be an empty array or a new array
+    } else {
+      // We're updating a specific action
+      updatedActions = [...(gameState.actionHistories[street] || [])];
+      // Remove index property if it exists
+      const { index: _, ...actionWithoutIndex } = updatedAction;
+      updatedActions[index] = actionWithoutIndex;
     }
     
-    return (
-      <ul className="list-disc pl-5">
-        {actions.map((action, idx) => {
-          const player = players[action.playerIdx];
-          return (
-            <li key={idx} className="mb-1">
-              <strong>{player.name}</strong>: {action.action}
-              {(action.action === 'raise' || action.action === 'call') && 
-                ` ${action.amount}`}
-            </li>
-          );
-        })}
-      </ul>
-    );
+    const updatedHistories = {
+      ...gameState.actionHistories,
+      [street]: updatedActions
+    };
+    
+    setGameState({
+      ...gameState,
+      actionHistories: updatedHistories
+    });
   };
+  
+  // Function to remove an action from history
+  const removeActionFromHistory = (street, index) => {
+    const updatedActions = [...(gameState.actionHistories[street] || [])];
+    updatedActions.splice(index, 1);
+    
+    const updatedHistories = {
+      ...gameState.actionHistories,
+      [street]: updatedActions
+    };
+    
+    setGameState({
+      ...gameState,
+      actionHistories: updatedHistories
+    });
+  };
+
+
 
   return (
     <div className="poker-app">
@@ -220,7 +310,9 @@ export default function PokerApp() {
       <PlayerSection 
         players={players} 
         updatePlayer={updatePlayer} 
-        addPlayer={addPlayer} 
+        addPlayer={addPlayer}
+        removePlayer={removePlayer}
+        reorderPlayers={reorderPlayers}
       />
       
       <GameInfoSection 
@@ -247,9 +339,10 @@ export default function PokerApp() {
       
       <ActionHistorySection 
         gameState={gameState} 
-        addActionToHistory={addActionToHistory} 
+        addActionToHistory={addActionToHistory}
+        updateActionHistory={updateActionHistory}
+        removeActionFromHistory={removeActionFromHistory}
         players={players} 
-        renderActionHistory={renderActionHistory} 
       />
       
       <RecommendationSection 
